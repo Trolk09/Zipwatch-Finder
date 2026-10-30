@@ -40,16 +40,16 @@ jobs:
         run: flutter build apk --release
 
       - name: Rename APK
-        run: cp build/app/outputs/flutter-apk/app-release.apk ZIPWATCH-Finder.apk
+        run: cp build/app/outputs/flutter-apk/app-release.apk Zyvro.apk
 
       - uses: actions/upload-artifact@v4
         with:
-          name: ZIPWATCH-Finder-apk
-          path: ZIPWATCH-Finder.apk
+          name: Zyvro-apk
+          path: Zyvro.apk
 
       # Tag a release (git tag v1.0.0 && git push --tags) to publish the APK
       - name: Publish release
         if: startsWith(github.ref, 'refs/tags/v')
         uses: softprops/action-gh-release@v2
         with:
-          files: ZIPWATCH-Finder.apk
+          files: Zyvro.apk
