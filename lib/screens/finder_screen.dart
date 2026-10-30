@@ -9,6 +9,64 @@ class FinderScreen extends StatelessWidget {
   const FinderScreen({super.key, required this.c});
   final BleController c;
 
+  Future<void> _rename(BuildContext context) async {
+    final input = TextEditingController(text: c.deviceName);
+    final name = await showModalBottomSheet<String>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Zy.surface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+      ),
+      builder: (ctx) => Padding(
+        padding: EdgeInsets.fromLTRB(24, 24, 24, MediaQuery.of(ctx).viewInsets.bottom + 24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text('Rename device',
+                style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800, letterSpacing: -0.4)),
+            const SizedBox(height: 6),
+            Text(
+              'This changes the Bluetooth name of your device. It restarts to apply the new name.',
+              style: TextStyle(color: Zy.muted, fontSize: 14, height: 1.35),
+            ),
+            const SizedBox(height: 18),
+            TextField(
+              controller: input,
+              autofocus: true,
+              maxLength: 20,
+              textInputAction: TextInputAction.done,
+              onSubmitted: (v) => Navigator.pop(ctx, v),
+              decoration: InputDecoration(
+                hintText: 'Zipwatch',
+                filled: true,
+                fillColor: Zy.surfaceHi,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(16),
+                  borderSide: BorderSide.none,
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(16),
+                  borderSide: const BorderSide(color: Zy.cyan, width: 1.5),
+                ),
+              ),
+            ),
+            const SizedBox(height: 12),
+            FilledButton(
+              onPressed: () => Navigator.pop(ctx, input.text),
+              child: const Text('Save name'),
+            ),
+          ],
+        ),
+      ),
+    );
+    input.dispose();
+    if (name != null && name.trim().isNotEmpty && name.trim() != c.deviceName) {
+      c.renameDevice(name);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -27,6 +85,7 @@ class FinderScreen extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(c.deviceName,
+                              overflow: TextOverflow.ellipsis,
                               style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
                           Row(
                             children: [
@@ -75,10 +134,24 @@ class FinderScreen extends StatelessWidget {
                   style: TextStyle(color: Zy.muted, fontSize: 14.5),
                 ),
                 const SizedBox(height: 22),
-                OutlinedButton.icon(
-                  onPressed: c.disconnect,
-                  icon: const Icon(Icons.link_off_rounded, size: 20),
-                  label: const Text('Disconnect'),
+                Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton.icon(
+                        onPressed: () => _rename(context),
+                        icon: const Icon(Icons.edit_rounded, size: 20),
+                        label: const Text('Rename'),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: OutlinedButton.icon(
+                        onPressed: c.disconnect,
+                        icon: const Icon(Icons.link_off_rounded, size: 20),
+                        label: const Text('Disconnect'),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
