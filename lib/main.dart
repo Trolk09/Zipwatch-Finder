@@ -42,7 +42,7 @@ class _ZipwatchAppState extends State<ZipwatchApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'ZIPWATCH Finder',
+      title: 'Zyvro',
       debugShowCheckedModeBanner: false,
       theme: buildTheme(),
       home: ListenableBuilder(
