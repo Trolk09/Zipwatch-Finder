@@ -14,6 +14,6 @@ perms = """    <uses-feature android:name="android.hardware.bluetooth_le" androi
 if "BLUETOOTH_SCAN" not in s:
     s = s.replace("<application", perms + "    <application", 1)
 
-s = re.sub(r'android:label="[^"]*"', 'android:label="ZIPWATCH Finder"', s, count=1)
+s = re.sub(r'android:label="[^"]*"', 'android:label="Zyvro"', s, count=1)
 p.write_text(s)
 print("Manifest patched")
