@@ -1,0 +1,55 @@
+name: Build Android APK
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      # Generate the Android platform project, then drop it next to our code
+      - name: Generate Android project
+        run: |
+          flutter create --platforms=android --org com.zyvro --project-name zipwatch_finder _tmp_android
+          cp -r _tmp_android/android ./android
+          python3 tool/patch_android.py
+
+      - run: flutter pub get
+      - name: Generate launcher icons
+        run: dart run flutter_launcher_icons
+      - run: flutter analyze --no-fatal-infos --no-fatal-warnings
+      - name: Build release APK
+        run: flutter build apk --release
+
+      - name: Rename APK
+        run: cp build/app/outputs/flutter-apk/app-release.apk ZIPWATCH-Finder.apk
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ZIPWATCH-Finder-apk
+          path: ZIPWATCH-Finder.apk
+
+      # Tag a release (git tag v1.0.0 && git push --tags) to publish the APK
+      - name: Publish release
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: ZIPWATCH-Finder.apk
