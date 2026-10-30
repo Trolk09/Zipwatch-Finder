@@ -30,7 +30,7 @@ class ScanScreen extends StatelessWidget {
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text('ZIPWATCH Finder',
+                            const Text('Finder',
                                 style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800, letterSpacing: -0.3)),
                             Text('by Zyvro Technologies',
                                 style: TextStyle(fontSize: 12.5, color: Zy.muted)),
@@ -61,6 +61,14 @@ class ScanScreen extends StatelessWidget {
                       NoticeBanner(
                         message: c.error!,
                         actionLabel: 'Dismiss',
+                        onAction: c.clearError,
+                      ),
+                    if (c.notice != null)
+                      NoticeBanner(
+                        message: c.notice!,
+                        icon: Icons.check_circle_rounded,
+                        color: Zy.ok,
+                        actionLabel: 'OK',
                         onAction: c.clearError,
                       ),
                     Expanded(
