@@ -40,7 +40,7 @@ class ScanScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 28),
                     Text(
-                      c.results.isEmpty ? 'Find your watch' : 'Devices nearby',
+                      c.results.isEmpty ? 'Find your device' : 'Devices nearby',
                       style: const TextStyle(fontSize: 30, fontWeight: FontWeight.w800, letterSpacing: -0.8, height: 1.1),
                     ),
                     const SizedBox(height: 6),
