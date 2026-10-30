@@ -20,6 +20,7 @@ class BleController extends ChangeNotifier {
   bool ringing = false;
   int? rssi;
   String? error;
+  String? notice;
 
   BluetoothDevice? _device;
   BluetoothCharacteristic? _char;
@@ -51,7 +52,7 @@ class BleController extends ChangeNotifier {
   static String nameOf(ScanResult r) {
     if (r.advertisementData.advName.isNotEmpty) return r.advertisementData.advName;
     if (r.device.platformName.isNotEmpty) return r.device.platformName;
-    return 'ZIPWATCH-FINDER';
+    return 'Zipwatch';
   }
 
   String _clean(Object e) => e
@@ -61,6 +62,7 @@ class BleController extends ChangeNotifier {
 
   void clearError() {
     error = null;
+    notice = null;
     notifyListeners();
   }
 
@@ -92,6 +94,7 @@ class BleController extends ChangeNotifier {
     if (link != LinkState.idle) return;
     final d = r.device;
     error = null;
+    notice = null;
     link = LinkState.connecting;
     _device = d;
     deviceName = nameOf(r);
@@ -135,7 +138,7 @@ class BleController extends ChangeNotifier {
     await _cleanup();
   }
 
-  Future<void> _cleanup({String? message}) async {
+  Future<void> _cleanup({String? message, String? notice}) async {
     if (link == LinkState.idle && _device == null) return;
     _ringTimer?.cancel();
     _rssiTimer?.cancel();
@@ -148,6 +151,7 @@ class BleController extends ChangeNotifier {
     rssi = null;
     link = LinkState.idle;
     error = message;
+    this.notice = notice;
     notifyListeners();
     if (d != null) {
       try {
@@ -168,6 +172,21 @@ class BleController extends ChangeNotifier {
       notifyListeners();
       return false;
     }
+  }
+
+  /// Changes the Bluetooth name the ESP32 advertises. The ESP32 saves it and
+  /// restarts, so the app drops the connection and scans again.
+  Future<void> renameDevice(String newName) async {
+    final name = newName.trim();
+    if (name.isEmpty || name.length > 20) {
+      error = 'Use 1 to 20 characters for the device name.';
+      notifyListeners();
+      return;
+    }
+    if (!await _send('NAME:$name')) return;
+    await _cleanup(
+      notice: 'Renamed to "$name". The device is restarting and will show up in the list in a moment.',
+    );
   }
 
   Future<void> find() async {
